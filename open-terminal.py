@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from gi.repository import Nautilus, GObject, GConf
 
 
