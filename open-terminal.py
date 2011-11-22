@@ -2,20 +2,32 @@
 
 from gi.repository import Nautilus, GObject, GConf
 
-
 import os
 import urllib
 import subprocess
 
 TERMINAL_KEY = '/desktop/gnome/applications/terminal/exec'
 
+  
+
 def uri_from_path(nautilus_file):
     """ Turn natuilus-file-uri into a valid path if possible"""
     
     if nautilus_file.get_uri_scheme() == 'file':
         return urllib.unquote(nautilus_file.get_uri()[7:])
-    else:
-        return ""
+    elif 'x-nautilus-desktop' in nautilus_file.get_uri_scheme(): ## needs fixing
+        ## python-xdg-lib does not provide the desktop-location. Furthermore
+        # /usr/bin/xdg-user-dir just appends "Desktop" to the user's home directory.
+        # There seems to be no lib which parses ~/.config/user-dirs.dirs
+        # or /etc/xdg/user-dirs.defaults
+        # So we just use this little hack here…
+        
+        try_directories = ["~/Desktop", "~/Arbeitsfläche", "~/Workspace", "~/"]
+        for directory in try_directories:
+            desk = os.path.expanduser(directory)
+            if os.path.exists(desk):
+                return desk
+
 
 def get_default_terminal():
     """Get default terminal"""
